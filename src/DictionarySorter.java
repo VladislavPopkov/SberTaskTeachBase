@@ -3,27 +3,26 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.UUID;
 
 public class DictionarySorter {
     public static void main(String[] args) throws IOException {
-        AtomicInteger counterMergeSorter = new AtomicInteger(0);
         int chunkSize = 8;
         String inputFileName = args[0];
         String outputFileName = args[1];
         ArrayList<String> pathToTempFileName = readAndSortChunkInputFile(inputFileName, chunkSize);
-        mergeFiles(pathToTempFileName, outputFileName, 0, pathToTempFileName.size() - 1, counterMergeSorter);
+        mergeFiles(pathToTempFileName, outputFileName, 0, pathToTempFileName.size() - 1);
         System.out.println("Sorted file was saved to " + "/home/vladislav/IntelejIdeaProject/SberTaskTeachBase/resource/output.txt");
     }
 
-    public static void mergeFiles(List<String> inputFile, String outputFileName, int firstPointer, int secondPointer, AtomicInteger counter) throws IOException {
+    public static void mergeFiles(List<String> inputFile, String outputFileName, int firstPointer, int secondPointer) throws IOException {
         if (inputFile.size() == 1) {
             saveToOutputFile(inputFile, outputFileName);
             return;
         }
         List<String> mergesList = new ArrayList<>();
         while (firstPointer <= secondPointer) {
-            File tempFile = new File("resource/mergeTempFile" + counter.incrementAndGet() + ".txt");
+            File tempFile = new File("resource/mergeTempFile" + getRandomNumber() + ".txt");
             if (firstPointer == secondPointer) {
                 mergesList.add(inputFile.get(firstPointer));
                 break;
@@ -58,7 +57,7 @@ public class DictionarySorter {
             deleteFile(inputFile.get(firstPointer++));
             deleteFile(inputFile.get(secondPointer--));
         }
-        mergeFiles(mergesList, outputFileName, 0, mergesList.size() - 1, counter);
+        mergeFiles(mergesList, outputFileName, 0, mergesList.size() - 1);
     }
 
     public static void saveToOutputFile(List<String> inputFile, String outputFileName) throws IOException {
@@ -76,14 +75,13 @@ public class DictionarySorter {
 
     public static ArrayList<String> readAndSortChunkInputFile(String fileName, int chunkSize) throws IOException {
         ArrayList<String> pathToTempFileName = new ArrayList<>();
-        int indexTempFile = 1;
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             ArrayList<String> lines = new ArrayList<>();
             String line;
             while ((line = br.readLine()) != null) {
                 lines.add(line);
                 if (lines.size() == chunkSize) {
-                    File tempFile = createTempFile(indexTempFile++);
+                    File tempFile = createTempFile();
                     Collections.sort(lines);
                     Files.write(tempFile.toPath(), lines);
                     lines.clear();
@@ -91,7 +89,7 @@ public class DictionarySorter {
                 }
             }
             if (!lines.isEmpty()) {
-                File tempFile = createTempFile(indexTempFile++);
+                File tempFile = createTempFile();
                 Collections.sort(lines);
                 Files.write(tempFile.toPath(), lines);
                 pathToTempFileName.add(tempFile.getAbsolutePath());
@@ -102,8 +100,11 @@ public class DictionarySorter {
         return pathToTempFileName;
     }
 
-    public static File createTempFile(int index) {
-        String tempFileName = "resource/tempFile" + index + ".txt";
+    public static UUID getRandomNumber() {
+        return UUID.randomUUID();
+    }
+    public static File createTempFile() {
+        String tempFileName = "resource/tempFile" + getRandomNumber() + ".txt";
         File tempFile = new File(tempFileName);
         return tempFile;
     }
