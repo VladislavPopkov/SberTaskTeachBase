@@ -62,18 +62,9 @@ public class DictionarySorter {
     }
 
     public static void saveToOutputFile(List<String> inputFile, String outputFileName) throws IOException {
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFileName))) {
-            try (BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFile.get(0)))) {
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
-                    bufferedWriter.write(line);
-                    bufferedWriter.newLine();
-                }
-            }
-            deleteFile(inputFile.get(0));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        File outputFile = new File(outputFileName);
+        File file = new File(inputFile.get(0));
+        file.renameTo(outputFile);
     }
 
     public static void deleteFile(String fileName) {
