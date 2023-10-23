@@ -3,7 +3,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 public class DictionarySorter {
     public static void main(String[] args) throws IOException {
@@ -12,7 +11,7 @@ public class DictionarySorter {
         String outputFileName = args[1];
         ArrayList<String> pathToTempFileName = readAndSortChunkInputFile(inputFileName, chunkSize);
         mergeFiles(pathToTempFileName, outputFileName, 0, pathToTempFileName.size() - 1);
-        System.out.println("Sorted file was saved to " + "/home/vladislav/IntelejIdeaProject/SberTaskTeachBase/resource/output.txt");
+        System.out.println("Sorted file was saved to " + outputFileName);
     }
 
     public static void mergeFiles(List<String> inputFile, String outputFileName, int firstPointer, int secondPointer) throws IOException {
@@ -22,7 +21,7 @@ public class DictionarySorter {
         }
         List<String> mergesList = new ArrayList<>();
         while (firstPointer <= secondPointer) {
-            File tempFile = new File("resource/mergeTempFile" + getRandomNumber() + ".txt");
+            File tempFile = File.createTempFile("mergeTempFile", ".txt");
             if (firstPointer == secondPointer) {
                 mergesList.add(inputFile.get(firstPointer));
                 break;
@@ -81,7 +80,7 @@ public class DictionarySorter {
             while ((line = br.readLine()) != null) {
                 lines.add(line);
                 if (lines.size() == chunkSize) {
-                    File tempFile = createTempFile();
+                    File tempFile = File.createTempFile("tempFile", ".txt");
                     Collections.sort(lines);
                     Files.write(tempFile.toPath(), lines);
                     lines.clear();
@@ -89,7 +88,7 @@ public class DictionarySorter {
                 }
             }
             if (!lines.isEmpty()) {
-                File tempFile = createTempFile();
+                File tempFile = File.createTempFile("tempFile", ".txt");
                 Collections.sort(lines);
                 Files.write(tempFile.toPath(), lines);
                 pathToTempFileName.add(tempFile.getAbsolutePath());
@@ -98,14 +97,5 @@ public class DictionarySorter {
             e.printStackTrace();
         }
         return pathToTempFileName;
-    }
-
-    public static UUID getRandomNumber() {
-        return UUID.randomUUID();
-    }
-    public static File createTempFile() {
-        String tempFileName = "resource/tempFile" + getRandomNumber() + ".txt";
-        File tempFile = new File(tempFileName);
-        return tempFile;
     }
 }
